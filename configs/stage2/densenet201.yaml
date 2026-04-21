@@ -1,0 +1,8 @@
+# Stage 2 recommended default — DenseNet-201 has more capacity than 121,
+# which pays off on the harder abnormal-only pathology task.
+model: densenet201
+hidden_dims: [512, 256, 128]
+dropout: 0.2
+num_classes: 14
+tabular_features: 4
+freeze_backbone: false

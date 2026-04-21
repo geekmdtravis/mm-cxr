@@ -1,0 +1,8 @@
+# Stage 1 abnormality gate — DenseNet-121 backbone, binary head.
+# Loadable via mm_cxr_diag.models.CXRModelConfig.from_yaml().
+model: densenet121
+hidden_dims: [512, 256, 128]
+dropout: 0.2
+num_classes: 1
+tabular_features: 4
+freeze_backbone: false

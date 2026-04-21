@@ -1,0 +1,9 @@
+# Stage 2 pathology classifier — DenseNet-121 backbone, 14-way multi-label.
+# Trained only on abnormal studies; combined at inference time with
+# Stage 1's abnormality probability (multiplicative).
+model: densenet121
+hidden_dims: [512, 256, 128]
+dropout: 0.2
+num_classes: 14
+tabular_features: 4
+freeze_backbone: false

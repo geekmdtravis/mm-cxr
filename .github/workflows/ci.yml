@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, development]
+  pull_request:
+    branches: [main, master, development]
+  schedule:
+    # Daily at 06:00 UTC — runs the slow suite (per-backbone smoke tests
+    # which materialize five ImageNet-pretrained checkpoints).
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dev tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "ruff>=0.4" "black>=24.0"
+
+      - name: Ruff check
+        run: ruff check mm_cxr_diag tests
+
+      - name: Ruff format check
+        run: ruff format --check mm_cxr_diag tests
+
+      - name: Black check
+        run: black --check mm_cxr_diag tests
+
+  test:
+    # Fast suite on every push / PR. 'slow' tests (trainer smoke for each
+    # backbone) are gated to the nightly schedule and workflow_dispatch.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install torch (CPU)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.3,<3" "torchvision>=0.18,<1"
+
+      - name: Install package with dev + serve extras
+        run: python -m pip install -e ".[dev,serve]"
+
+      - name: Pytest (fast)
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          pytest -m "not slow and not real_data" \
+            --cov=mm_cxr_diag \
+            --cov-report=term-missing \
+            --cov-fail-under=65
+
+  test-slow:
+    # Per-backbone trainer smoke tests. Runs on nightly schedule and on
+    # manual workflow_dispatch — these download ~5 torchvision
+    # ImageNet-pretrained checkpoint archives and take a few minutes.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install torch (CPU)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.3,<3" "torchvision>=0.18,<1"
+
+      - name: Install package with dev + serve extras
+        run: python -m pip install -e ".[dev,serve]"
+
+      - name: Pytest (slow)
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: pytest -m "slow" -v
