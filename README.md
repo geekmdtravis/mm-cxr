@@ -264,6 +264,7 @@ collaboration between:
 
 - [Travis Nesbit, MD](https://github.com/geekmdtravis)
 - [Emad Albalas](https://github.com/ealbalas)
+- Anonymous Classmate (respecting their preference)
 - [Shardul Dhande](https://github.com/sharduldhande)
 
 The single-stage multimodal classifier, the focal-loss reweighting, and
