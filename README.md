@@ -257,6 +257,20 @@ on pathology discrimination with a rebalanced class distribution.
 
 ![Example CXR input](assets/cxr_vanilla.png)
 
+## Acknowledgements
+
+The original CS7643 course project this codebase descends from was a
+collaboration between:
+
+- [Travis Nesbit, MD](https://github.com/geekmdtravis)
+- [Emad Albalas](https://github.com/ealbalas)
+- [Shardul Dhande](https://github.com/sharduldhande)
+
+The single-stage multimodal classifier, the focal-loss reweighting, and
+the statistical comparison framework all originated in that joint work.
+The two-stage hierarchical redesign, packaging, CLI, and FastAPI service
+are subsequent work on this fork.
+
 ## License
 
 MIT. See `pyproject.toml`.
